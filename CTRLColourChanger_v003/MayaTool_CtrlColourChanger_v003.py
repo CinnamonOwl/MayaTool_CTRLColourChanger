@@ -402,7 +402,7 @@ class JsonEditorDialog(QtWidgets.QDialog):
 # ------------------------------------------------------------------
 class CTRLColourChanger(QtWidgets.QDialog):
     
-    WINDOW_TITLE = "CTRLcColour Changer"
+    WINDOW_TITLE = "CTRLColour Changer"
     
     def __init__(self, parent=None):
         super(CTRLColourChanger, self).__init__(parent)
