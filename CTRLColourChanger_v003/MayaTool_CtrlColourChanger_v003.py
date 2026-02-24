@@ -777,7 +777,7 @@ def show():
     my_drawing_tool = CTRLColourChanger(parent=maya_win)
     my_drawing_tool.show()
 
-show()
+# show()
 
 # -----------------------------------------------------------------------------
 # AUTO-ICON UPDATER (Paste this at the bottom of any script)
@@ -818,4 +818,4 @@ def update_shelf_icon():
         print(f"Could not auto-update icon: {e}")
 
 # Run it immediately
-update_shelf_icon()
+# update_shelf_icon()
