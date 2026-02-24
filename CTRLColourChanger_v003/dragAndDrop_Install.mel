@@ -43,8 +43,7 @@ global proc dragAndDrop(string $path) {
             -command $pyCmd
             -sourceType "python"
             -annotation ("Launch " + $scriptName)
-            -label "CTRLc"
-            -imageOverlayLabel "CTRLc"
+            -label "CtrlCol"
             -overlayLabelColor 1 1 1
             -overlayLabelBackColor 0 0 0 0.5;
 
