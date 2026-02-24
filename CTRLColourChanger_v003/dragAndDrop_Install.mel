@@ -1,0 +1,58 @@
+// dragAndDrop.mel
+global proc dragAndDrop(string $path) {
+    global string $gShelfTopLevel;
+
+    // 1. Get the directory dynamically based on where the user dropped it from
+    string $dir = dirname($path);
+    
+    // 2. Exact module name based on your Python file
+    string $scriptName = "MayaTool_CtrlColourChanger_v003"; 
+    string $iconName   = "CTRLColourChanger_icon.png";
+    string $fullIconPath = ($dir + "/" + $iconName);
+    
+    // 3. Build the exact Python command that we know works
+    string $pyCmd = "import sys\n";
+    $pyCmd += "tool_path = r'" + $dir + "'\n";
+    $pyCmd += "if tool_path not in sys.path:\n";
+    $pyCmd += "    sys.path.append(tool_path)\n";
+    $pyCmd += "import " + $scriptName + "\n";
+    $pyCmd += "import importlib\n";
+    $pyCmd += "importlib.reload(" + $scriptName + ")\n";
+    $pyCmd += $scriptName + ".show()";
+
+    if (`tabLayout -exists $gShelfTopLevel`) {
+        string $currentShelf = `tabLayout -q -selectTab $gShelfTopLevel`;
+        
+        // 4. Prevent duplicates
+        string $buttons[] = `shelfLayout -q -childArray $currentShelf`;
+        if (size($buttons) > 0) {
+            for ($btn in $buttons) {
+                if (`shelfButton -exists $btn`) {
+                    string $cmd = `shelfButton -q -command $btn`;
+                    if (`gmatch $cmd ("*" + $scriptName + "*")`) {
+                        deleteUI $btn;
+                    }
+                }
+            }
+        }
+
+        // 5. Create the Button (Forced as Python)
+        shelfButton
+            -parent $currentShelf
+            -image $fullIconPath
+            -command $pyCmd
+            -sourceType "python"
+            -annotation ("Launch " + $scriptName)
+            -label "CTRLc"
+            -imageOverlayLabel "CTRLc"
+            -overlayLabelColor 1 1 1
+            -overlayLabelBackColor 0 0 0 0.5;
+
+        // Print success message to the console and popup
+        print("\nSuccessfully installed " + $scriptName + " to shelf: " + $currentShelf + "\n");
+        confirmDialog -title "Installed" -message "Tool installed successfully to your current shelf!" -button "OK";
+    }
+}
+// This line tells Maya to actually RUN the function we just defined
+// Aggressive execution
+dragAndDrop("%path%");
