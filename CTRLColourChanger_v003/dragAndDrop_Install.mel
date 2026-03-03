@@ -1,29 +1,35 @@
-// dragAndDrop.mel
-global proc dragAndDrop(string $path) {
+// 1. A dummy procedure just so we can ask Maya where this file is located
+global proc CTRLColour_LocatorProc() {}
+
+// 2. The actual installer
+global proc CTRLColour_Install() {
     global string $gShelfTopLevel;
 
-    // 1. Get the directory dynamically based on where the user dropped it from
-    string $dir = dirname($path);
-    
-    // 2. Exact module name based on your Python file
+    // Magically find the folder this script is in!
+    string $whatIs = `whatIs CTRLColour_LocatorProc`;
+    string $fullPath = substitute("Mel procedure found in: ", $whatIs, "");
+    string $dir = dirname($fullPath);
+    $dir = substituteAllString($dir, "\\", "/");
+
+    // Exact match to your Python filename
     string $scriptName = "MayaTool_CtrlColourChanger_v003"; 
-    string $iconName   = "CTRLColourChanger_icon.png";
+    string $iconName   = "CTRLColourChanger_icon";
     string $fullIconPath = ($dir + "/" + $iconName);
-    
-    // 3. Build the exact Python command that we know works
+
+    // Build the Python command
     string $pyCmd = "import sys\n";
     $pyCmd += "tool_path = r'" + $dir + "'\n";
     $pyCmd += "if tool_path not in sys.path:\n";
-    $pyCmd += "    sys.path.append(tool_path)\n";
+    $pyCmd += "    sys.path.insert(0, tool_path)\n";
+    $pyCmd += "if '" + $scriptName + "' in sys.modules:\n";
+    $pyCmd += "    del sys.modules['" + $scriptName + "']\n";
     $pyCmd += "import " + $scriptName + "\n";
-    $pyCmd += "import importlib\n";
-    $pyCmd += "importlib.reload(" + $scriptName + ")\n";
-    $pyCmd += $scriptName + ".show()";
+    $pyCmd += $scriptName + ".main()"; 
 
     if (`tabLayout -exists $gShelfTopLevel`) {
         string $currentShelf = `tabLayout -q -selectTab $gShelfTopLevel`;
         
-        // 4. Prevent duplicates
+        // Prevent duplicates
         string $buttons[] = `shelfLayout -q -childArray $currentShelf`;
         if (size($buttons) > 0) {
             for ($btn in $buttons) {
@@ -36,7 +42,7 @@ global proc dragAndDrop(string $path) {
             }
         }
 
-        // 5. Create the Button (Forced as Python)
+        // Create the Button (Forced as Python)
         shelfButton
             -parent $currentShelf
             -image $fullIconPath
@@ -52,6 +58,6 @@ global proc dragAndDrop(string $path) {
         confirmDialog -title "Installed" -message "Tool installed successfully to your current shelf!" -button "OK";
     }
 }
-// This line tells Maya to actually RUN the function we just defined
-// Aggressive execution
-dragAndDrop("%path%");
+
+// 3. This line automatically runs the installer when the file is dropped into Maya
+CTRLColour_Install();
