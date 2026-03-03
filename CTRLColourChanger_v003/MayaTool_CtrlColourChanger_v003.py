@@ -8,6 +8,7 @@
 # Added right click menu to open file location on the Edit Json button
 # ------------------------------------------------------------------
 
+import os
 import sys
 import json
 import maya.cmds as cmds
@@ -777,7 +778,7 @@ def show():
     my_drawing_tool = CTRLColourChanger(parent=maya_win)
     my_drawing_tool.show()
 
-# show()
+show()
 
 # -----------------------------------------------------------------------------
 # AUTO-ICON UPDATER (Paste this at the bottom of any script)
