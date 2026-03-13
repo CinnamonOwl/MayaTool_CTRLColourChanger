@@ -1,0 +1,65 @@
+// 1. A dummy procedure just so we can ask Maya where this file is located
+global proc CTRLColourChanger_LocatorProc() {}
+
+// 2. The actual Installer
+global proc CTRLColourChanger_Install() {
+    global string $gShelfTopLevel;
+
+    // Magically find the folder this script is in!
+    // FIXED: Now looking for the correct LocatorProc
+    string $whatIs = `whatIs CTRLColourChanger_LocatorProc`;
+    string $fullPath = substitute("Mel procedure found in: ", $whatIs, "");
+    string $dir = dirname($fullPath);
+    $dir = substituteAllString($dir, "\\", "/");
+
+    // Exact match to your Python filename
+    string $scriptName = "MayaTool_CtrlColourChanger_v004"; 
+    string $iconName   = "CTRLColourChanger_icon.png";
+    string $fullIconPath = ($dir + "/" + $iconName);
+
+    // Build the Python command
+    string $pyCmd = "import sys\n";
+    $pyCmd += "tool_path = r'" + $dir + "'\n";
+    $pyCmd += "if tool_path not in sys.path:\n";
+    $pyCmd += "    sys.path.insert(0, tool_path)\n";
+    $pyCmd += "if '" + $scriptName + "' in sys.modules:\n";
+    $pyCmd += "    del sys.modules['" + $scriptName + "']\n";
+    $pyCmd += "import " + $scriptName + "\n";
+    
+    // FIXED: Changed .main() to .show() to match your Python file
+    $pyCmd += $scriptName + ".show()"; 
+
+    if (`tabLayout -exists $gShelfTopLevel`) {
+        string $currentShelf = `tabLayout -q -selectTab $gShelfTopLevel`;
+        
+        // Prevent duplicates
+        string $buttons[] = `shelfLayout -q -childArray $currentShelf`;
+        if (size($buttons) > 0) {
+            for ($btn in $buttons) {
+                if (`shelfButton -exists $btn`) {
+                    string $cmd = `shelfButton -q -command $btn`;
+                    if (`gmatch $cmd ("*" + $scriptName + "*")`) {
+                        deleteUI $btn;
+                    }
+                }
+            }
+        }
+
+        // Create the Button (Forced as Python)
+        shelfButton
+            -parent $currentShelf
+            -image $fullIconPath
+            -command $pyCmd
+            -sourceType "python"
+            -annotation ("Launch " + $scriptName)
+            -label "CtrlColourChanger"
+            -overlayLabelColor 1 1 1
+            -overlayLabelBackColor 0 0 0 0.5;
+
+        // Print success message to the console and popup
+        print("\nSuccessfully installed " + $scriptName + " to shelf: " + $currentShelf + "\n");
+        confirmDialog -title "Installed" -message "Tool installed successfully to your current shelf!" -button "OK";
+    }
+}
+// 3. This line automatically runs the installer when the file is dropped into Maya
+CTRLColourChanger_Install();
