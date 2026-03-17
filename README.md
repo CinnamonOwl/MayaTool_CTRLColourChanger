@@ -1,10 +1,13 @@
 Hi. This is a small passion project.  
 Thank you for looking into it  XD  
 
-Anyway.   
-The code should be copy pasted into your script editor, and MMB drag onto your shelf.  
-The icon should be placed into the icon folder in your local Maya folder. Ex: C:User\Documents\Autodesk\Maya\2026\prefs\icons  
-The JSON file for your palette will be saved in the script folder of your local Maya folder. Ex: C:\User\Documents\Autodesk\Maya\scripts  
+Anyway.
+
+Install Instructions:
+
+- Download the folder and put it in your desired location. 
+- Find file "dragAndDrop.mel" and drag and drop it into your Maya viewport. 
+- Yay! You've installed it! Now, set a Library for yourself in your desired location.
 
 Have fun using this!  
 I'd love some feedback if you have any~  
